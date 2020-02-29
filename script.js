@@ -8,7 +8,7 @@
 var pg = require('pg');
 const csv = require("csvtojson");
 
-var files = ['1.csv', 'access.csv', 'caregiver.csv', 'economic.csv', 'function.csv', 'health.csv', 'mh.csv']
+var files = ['4.csv', 'caregiver.csv', 'economics.csv', 'function.csv', 'healthcare.csv', 'mental.csv', 'education.csv']
 
 async function main() {
     try {
@@ -35,28 +35,28 @@ async function insertRows(client, rows) {
     for(var i = 0; i < rows.length; i++) {
 
         try {
-            await client.query("Insert into case_objective_type(description_en) values ($1) on conflict do nothing;", [rows[i]['field1']]);
+            await client.query("Insert into case_objective_type(description_en, description_la) values ($1, $2) on conflict do nothing;", [rows[i]['field2'], rows[i]['field1']]);
         }
         catch(err) {
             console.log(err);
         }
-        var res = await client.query("select id from case_objective_type where description_en = $1;", [rows[i]['field1']])
+        var res = await client.query("select id from case_objective_type where description_en = $1;", [rows[i]['field2']])
 
 
         var objectiveId = res.rows[0].id
 
         try {
-            await client.query("Insert into case_intervention_type(description_en, case_objective_type_id) values ($1, $2) on conflict do nothing;", [rows[i]['field2'], objectiveId]);
+            await client.query("Insert into case_intervention_type(description_en, description_la, case_objective_type_id) values ($1, $2, $3) on conflict do nothing;", [rows[i]['field4'], rows[i]['field3'], objectiveId]);
         }
         catch(err) {
             console.log(err);
         }
-        var res = await client.query("select id from case_intervention_type where description_en = $1;", [rows[i]['field2']])
+        var res = await client.query("select id from case_intervention_type where description_en = $1;", [rows[i]['field4']])
 
         var interventionId = res.rows[0].id
 
         try {
-            await client.query("Insert into case_action_type(description_en, case_intervention_type_id) values ($1, $2) on conflict do nothing;", [rows[i]['field3'], interventionId]);
+            await client.query("Insert into case_action_type(description_en, description_la, case_intervention_type_id) values ($1, $2, $3) on conflict do nothing;", [rows[i]['field6'], rows[i]['field5'], interventionId]);
         }
         catch(err) {
             console.log(err);
